@@ -102,11 +102,9 @@ function Page() {
             <Row k="Registration" v={`${d.registrationNumber || "—"} • ${d.incorporationCountry}`} />
             <Row k="Industry" v={d.industry} />
             <Row k="Channel" v={d.channel} />
-            <div className="py-1.5 border-b border-border/60">
-              <div className="text-muted-foreground mb-1">UBOs ({d.ubos.length})</div>
-              <ul className="space-y-1">
-                {d.ubos.map((u, i) => <li key={i} className="font-medium">{u.name || "(unnamed)"} — {u.ownership}% — {u.nationality}</li>)}
-              </ul>
+            <div className="py-1.5">
+              <div className="text-muted-foreground text-xs uppercase tracking-wider mb-2">UBOs ({d.ubos.length})</div>
+              <UboTable ubos={d.ubos} dense />
             </div>
             <Row k="Documents" v={d.corpDocName || "—"} />
           </div>
