@@ -10,33 +10,89 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AnalystIndexRouteImport } from './routes/analyst.index'
+import { Route as OnboardingIndividualRouteImport } from './routes/onboarding.individual'
+import { Route as OnboardingCorporateRouteImport } from './routes/onboarding.corporate'
+import { Route as AnalystCaseIdRouteImport } from './routes/analyst.$caseId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnalystIndexRoute = AnalystIndexRouteImport.update({
+  id: '/analyst/',
+  path: '/analyst/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingIndividualRoute = OnboardingIndividualRouteImport.update({
+  id: '/onboarding/individual',
+  path: '/onboarding/individual',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingCorporateRoute = OnboardingCorporateRouteImport.update({
+  id: '/onboarding/corporate',
+  path: '/onboarding/corporate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalystCaseIdRoute = AnalystCaseIdRouteImport.update({
+  id: '/analyst/$caseId',
+  path: '/analyst/$caseId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analyst/$caseId': typeof AnalystCaseIdRoute
+  '/onboarding/corporate': typeof OnboardingCorporateRoute
+  '/onboarding/individual': typeof OnboardingIndividualRoute
+  '/analyst/': typeof AnalystIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analyst/$caseId': typeof AnalystCaseIdRoute
+  '/onboarding/corporate': typeof OnboardingCorporateRoute
+  '/onboarding/individual': typeof OnboardingIndividualRoute
+  '/analyst': typeof AnalystIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/analyst/$caseId': typeof AnalystCaseIdRoute
+  '/onboarding/corporate': typeof OnboardingCorporateRoute
+  '/onboarding/individual': typeof OnboardingIndividualRoute
+  '/analyst/': typeof AnalystIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/analyst/$caseId'
+    | '/onboarding/corporate'
+    | '/onboarding/individual'
+    | '/analyst/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/analyst/$caseId'
+    | '/onboarding/corporate'
+    | '/onboarding/individual'
+    | '/analyst'
+  id:
+    | '__root__'
+    | '/'
+    | '/analyst/$caseId'
+    | '/onboarding/corporate'
+    | '/onboarding/individual'
+    | '/analyst/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnalystCaseIdRoute: typeof AnalystCaseIdRoute
+  OnboardingCorporateRoute: typeof OnboardingCorporateRoute
+  OnboardingIndividualRoute: typeof OnboardingIndividualRoute
+  AnalystIndexRoute: typeof AnalystIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +104,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/analyst/': {
+      id: '/analyst/'
+      path: '/analyst'
+      fullPath: '/analyst/'
+      preLoaderRoute: typeof AnalystIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding/individual': {
+      id: '/onboarding/individual'
+      path: '/onboarding/individual'
+      fullPath: '/onboarding/individual'
+      preLoaderRoute: typeof OnboardingIndividualRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding/corporate': {
+      id: '/onboarding/corporate'
+      path: '/onboarding/corporate'
+      fullPath: '/onboarding/corporate'
+      preLoaderRoute: typeof OnboardingCorporateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analyst/$caseId': {
+      id: '/analyst/$caseId'
+      path: '/analyst/$caseId'
+      fullPath: '/analyst/$caseId'
+      preLoaderRoute: typeof AnalystCaseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnalystCaseIdRoute: AnalystCaseIdRoute,
+  OnboardingCorporateRoute: OnboardingCorporateRoute,
+  OnboardingIndividualRoute: OnboardingIndividualRoute,
+  AnalystIndexRoute: AnalystIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
