@@ -3,6 +3,7 @@ import { AppShell } from "@/components/AppShell";
 import { useEffect, useMemo, useState } from "react";
 import { loadCases, type KycCase } from "@/lib/kyc-store";
 import { RiskBadge } from "@/components/RiskBadge";
+import { StatusBadge, statusFromCase } from "@/components/StatusBadge";
 import { Input } from "@/components/ui/input";
 import { Search, ShieldAlert } from "lucide-react";
 
