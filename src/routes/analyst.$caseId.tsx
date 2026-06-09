@@ -80,6 +80,12 @@ function Page() {
             </dl>
           </Card>
 
+          {c.type === "corporate" && c.corporate && (
+            <Card title="UBO Structure" icon={Users2}>
+              <UboTable ubos={c.corporate.ubos} />
+            </Card>
+          )}
+
           <Card title="Sanctions & PEP Screening" icon={ShieldAlert}>
             <div className="grid sm:grid-cols-3 gap-3">
               {c.sanctions.map(m => (
