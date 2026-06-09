@@ -3,6 +3,7 @@ import { AppShell } from "@/components/AppShell";
 import { useEffect, useMemo, useState } from "react";
 import { loadCases, type KycCase } from "@/lib/kyc-store";
 import { RiskBadge } from "@/components/RiskBadge";
+import { StatusBadge, statusFromCase } from "@/components/StatusBadge";
 import { Input } from "@/components/ui/input";
 import { Search, ShieldAlert } from "lucide-react";
 
@@ -51,35 +52,35 @@ function Page() {
       </div>
 
       <div className="card-elevated overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-muted-foreground text-xs uppercase tracking-wider">
+        <table className="data-table">
+          <thead>
             <tr>
-              <th className="text-left px-4 py-3">Case ID</th>
-              <th className="text-left px-4 py-3">Subject</th>
-              <th className="text-left px-4 py-3 hidden md:table-cell">Type</th>
-              <th className="text-left px-4 py-3 hidden lg:table-cell">Created</th>
-              <th className="text-left px-4 py-3">Risk</th>
-              <th className="text-left px-4 py-3">Status</th>
-              <th className="px-4 py-3" />
+              <th className="data-table-th">Case ID</th>
+              <th className="data-table-th">Subject</th>
+              <th className="data-table-th hidden md:table-cell">Type</th>
+              <th className="data-table-th hidden lg:table-cell">Opened</th>
+              <th className="data-table-th">Risk</th>
+              <th className="data-table-th">Status</th>
+              <th className="data-table-th text-right">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border">
+          <tbody>
             {filtered.length === 0 && (
-              <tr><td colSpan={7} className="text-center py-10 text-muted-foreground">No cases match.</td></tr>
+              <tr><td className="data-table-td text-center text-muted-foreground py-10" colSpan={7}>No cases match.</td></tr>
             )}
             {filtered.map(c => (
-              <tr key={c.id} className="hover:bg-muted/30">
-                <td className="px-4 py-3 font-mono text-xs">{c.id}</td>
-                <td className="px-4 py-3 font-medium">
+              <tr key={c.id} className="row-hover">
+                <td className="data-table-td font-mono text-[11px] text-muted-foreground">{c.id}</td>
+                <td className="data-table-td font-medium">
                   {c.subjectName}
-                  {c.edd && <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-warning/15 text-warning border border-warning/30">EDD</span>}
+                  {c.edd && <span className="ml-2 status-pill status-escalated">EDD</span>}
                 </td>
-                <td className="px-4 py-3 capitalize hidden md:table-cell">{c.type}</td>
-                <td className="px-4 py-3 text-muted-foreground text-xs hidden lg:table-cell">{new Date(c.createdAt).toLocaleString()}</td>
-                <td className="px-4 py-3"><RiskBadge level={c.risk.level} /></td>
-                <td className="px-4 py-3"><DecisionBadge d={c.action.decision} /></td>
-                <td className="px-4 py-3 text-right">
-                  <Link to="/analyst/$caseId" params={{ caseId: c.id }} className="text-xs text-primary hover:underline">Open →</Link>
+                <td className="data-table-td capitalize hidden md:table-cell text-muted-foreground">{c.type}</td>
+                <td className="data-table-td text-muted-foreground font-mono text-[11px] hidden lg:table-cell">{new Date(c.createdAt).toLocaleString()}</td>
+                <td className="data-table-td"><RiskBadge level={c.risk.level} /></td>
+                <td className="data-table-td"><StatusBadge status={statusFromCase(c)} /></td>
+                <td className="data-table-td text-right">
+                  <Link to="/analyst/$caseId" params={{ caseId: c.id }} className="text-xs text-primary hover:underline font-medium">Open →</Link>
                 </td>
               </tr>
             ))}
@@ -88,14 +89,4 @@ function Page() {
       </div>
     </AppShell>
   );
-}
-
-function DecisionBadge({ d }: { d: string }) {
-  const map: Record<string, string> = {
-    pending: "bg-info/15 text-info border-info/30",
-    approved: "bg-success/15 text-success border-success/30",
-    rejected: "bg-destructive/15 text-destructive border-destructive/30",
-    escalated: "bg-warning/15 text-warning border-warning/30",
-  };
-  return <span className={`text-xs px-2 py-0.5 rounded-full border capitalize ${map[d]}`}>{d}</span>;
 }
