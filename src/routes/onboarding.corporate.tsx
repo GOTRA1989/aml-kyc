@@ -7,6 +7,7 @@ import { COUNTRIES, INDUSTRIES, createCorporateCase, type CorporateData, type UB
 import { Building2, FileText, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Stepper, Grid, Field, Select, FileDrop } from "./onboarding.individual";
+import { UboTable } from "@/components/UboTable";
 
 export const Route = createFileRoute("/onboarding/corporate")({
   head: () => ({
