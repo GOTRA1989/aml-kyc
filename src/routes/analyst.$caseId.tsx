@@ -57,8 +57,9 @@ function Page() {
           <h1 className="text-2xl font-bold mt-1">{c.subjectName}</h1>
           <div className="text-xs text-muted-foreground font-mono mt-1">{c.id} · {c.type.toUpperCase()} · Opened {new Date(c.createdAt).toLocaleString()}</div>
         </div>
-        <div className="flex items-center gap-3">
-          {c.edd && <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-warning/15 text-warning border border-warning/30 inline-flex items-center gap-1.5"><AlertTriangle className="size-3.5" /> EDD REQUIRED</span>}
+        <div className="flex items-center gap-2 flex-wrap">
+          <StatusBadge status={statusFromCase(c)} />
+          {c.edd && <span className="status-pill status-escalated"><AlertTriangle className="size-3" /> EDD Required</span>}
           <RiskBadge level={c.risk.level} />
           <Button variant="outline" onClick={() => { exportAuditPdf(c); addAudit(c.id, { action: "Audit PDF Exported" }); }}>
             <FileDown className="size-4" /> Export Audit Report
