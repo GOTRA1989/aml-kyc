@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AnalystIndexRouteImport } from './routes/analyst.index'
 import { Route as OnboardingIndividualRouteImport } from './routes/onboarding.individual'
 import { Route as OnboardingCorporateRouteImport } from './routes/onboarding.corporate'
 import { Route as AnalystCaseIdRouteImport } from './routes/analyst.$caseId'
 
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -43,6 +49,7 @@ const AnalystCaseIdRoute = AnalystCaseIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/analyst/$caseId': typeof AnalystCaseIdRoute
   '/onboarding/corporate': typeof OnboardingCorporateRoute
   '/onboarding/individual': typeof OnboardingIndividualRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/analyst/$caseId': typeof AnalystCaseIdRoute
   '/onboarding/corporate': typeof OnboardingCorporateRoute
   '/onboarding/individual': typeof OnboardingIndividualRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/analyst/$caseId': typeof AnalystCaseIdRoute
   '/onboarding/corporate': typeof OnboardingCorporateRoute
   '/onboarding/individual': typeof OnboardingIndividualRoute
@@ -67,6 +76,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/login'
     | '/analyst/$caseId'
     | '/onboarding/corporate'
     | '/onboarding/individual'
@@ -74,6 +84,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/login'
     | '/analyst/$caseId'
     | '/onboarding/corporate'
     | '/onboarding/individual'
@@ -81,6 +92,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/login'
     | '/analyst/$caseId'
     | '/onboarding/corporate'
     | '/onboarding/individual'
@@ -89,6 +101,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LoginRoute: typeof LoginRoute
   AnalystCaseIdRoute: typeof AnalystCaseIdRoute
   OnboardingCorporateRoute: typeof OnboardingCorporateRoute
   OnboardingIndividualRoute: typeof OnboardingIndividualRoute
@@ -97,6 +110,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -137,6 +157,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LoginRoute: LoginRoute,
   AnalystCaseIdRoute: AnalystCaseIdRoute,
   OnboardingCorporateRoute: OnboardingCorporateRoute,
   OnboardingIndividualRoute: OnboardingIndividualRoute,
@@ -145,3 +166,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
