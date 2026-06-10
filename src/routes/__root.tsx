@@ -78,12 +78,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Veridian KYC — Compliance Platform" },
+      { title: "SATYA KYC — Compliance Platform" },
       { name: "description", content: "Tier-1 banking KYC/AML onboarding, screening and analyst review platform." },
-      { property: "og:title", content: "Veridian KYC — Compliance Platform" },
+      { property: "og:title", content: "SATYA KYC — Compliance Platform" },
       { property: "og:description", content: "Tier-1 banking KYC/AML onboarding, screening and analyst review platform." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "SATYA KYC — Compliance Platform" },
+      { name: "twitter:description", content: "Tier-1 banking KYC/AML onboarding, screening and analyst review platform." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3cf78c90-2601-4f08-a6e0-084686654c7e" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3cf78c90-2601-4f08-a6e0-084686654c7e" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
