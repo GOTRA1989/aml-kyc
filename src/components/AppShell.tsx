@@ -1,7 +1,9 @@
-import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Shield, Users, Building2, ClipboardCheck, Moon, Sun } from "lucide-react";
+import { Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
+import { Shield, Users, Building2, ClipboardCheck, Moon, Sun, LogIn, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 const nav = [
   { to: "/", label: "Overview", icon: Shield },
@@ -12,19 +14,39 @@ const nav = [
 
 export function AppShell({ children }: { children?: React.ReactNode }) {
   const pathname = useRouterState({ select: s => s.location.pathname });
+  const navigate = useNavigate();
   const [dark, setDark] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("theme");
     const d = saved ? saved === "dark" : true;
     setDark(d);
     document.documentElement.classList.toggle("dark", d);
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user ?? null);
+    });
+    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
+    return () => sub.subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!user) { setRole(null); return; }
+    supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => setRole(data?.role ?? null));
+  }, [user]);
 
   const toggle = () => {
     const d = !dark; setDark(d);
     document.documentElement.classList.toggle("dark", d);
     localStorage.setItem("theme", d ? "dark" : "light");
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/login" });
   };
 
   return (
@@ -77,6 +99,21 @@ export function AppShell({ children }: { children?: React.ReactNode }) {
             <button onClick={toggle} className="size-9 grid place-items-center rounded-md hover:bg-accent text-muted-foreground" aria-label="Toggle theme">
               {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
             </button>
+            {user ? (
+              <div className="flex items-center gap-2">
+                <div className="hidden sm:flex flex-col items-end leading-tight">
+                  <span className="text-xs font-medium text-foreground truncate max-w-[160px]">{user.email}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{role ?? "—"}</span>
+                </div>
+                <button onClick={signOut} className="h-9 px-3 inline-flex items-center gap-1.5 rounded-md text-xs font-medium border border-border hover:bg-accent">
+                  <LogOut className="size-3.5" /> Sign out
+                </button>
+              </div>
+            ) : (
+              <Link to="/login" className="h-9 px-3 inline-flex items-center gap-1.5 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90">
+                <LogIn className="size-3.5" /> Sign in
+              </Link>
+            )}
           </div>
         </header>
         <main className="flex-1 p-4 md:p-8 max-w-[1400px] w-full mx-auto">
