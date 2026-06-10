@@ -1,7 +1,9 @@
-import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Shield, Users, Building2, ClipboardCheck, Moon, Sun } from "lucide-react";
+import { Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
+import { Shield, Users, Building2, ClipboardCheck, Moon, Sun, LogIn, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 const nav = [
   { to: "/", label: "Overview", icon: Shield },
