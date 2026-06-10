@@ -183,8 +183,10 @@
 }
 
 /* Subtle row hover for tables */
-@utility row-hover { transition: background-color 120ms ease; }
-@utility row-hover:hover { background: color-mix(in oklab, var(--muted) 55%, transparent); }
+@utility row-hover {
+  transition: background-color 120ms ease;
+  &:hover { background: color-mix(in oklab, var(--muted) 55%, transparent); }
+}
 
 /* Fast secure micro-interaction for primary cards/links */
 @utility interactive {
