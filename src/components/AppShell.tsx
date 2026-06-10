@@ -14,19 +14,39 @@ const nav = [
 
 export function AppShell({ children }: { children?: React.ReactNode }) {
   const pathname = useRouterState({ select: s => s.location.pathname });
+  const navigate = useNavigate();
   const [dark, setDark] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("theme");
     const d = saved ? saved === "dark" : true;
     setDark(d);
     document.documentElement.classList.toggle("dark", d);
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user ?? null);
+    });
+    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
+    return () => sub.subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!user) { setRole(null); return; }
+    supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => setRole(data?.role ?? null));
+  }, [user]);
 
   const toggle = () => {
     const d = !dark; setDark(d);
     document.documentElement.classList.toggle("dark", d);
     localStorage.setItem("theme", d ? "dark" : "light");
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/login" });
   };
 
   return (
