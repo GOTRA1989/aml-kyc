@@ -99,6 +99,21 @@ export function AppShell({ children }: { children?: React.ReactNode }) {
             <button onClick={toggle} className="size-9 grid place-items-center rounded-md hover:bg-accent text-muted-foreground" aria-label="Toggle theme">
               {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
             </button>
+            {user ? (
+              <div className="flex items-center gap-2">
+                <div className="hidden sm:flex flex-col items-end leading-tight">
+                  <span className="text-xs font-medium text-foreground truncate max-w-[160px]">{user.email}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{role ?? "—"}</span>
+                </div>
+                <button onClick={signOut} className="h-9 px-3 inline-flex items-center gap-1.5 rounded-md text-xs font-medium border border-border hover:bg-accent">
+                  <LogOut className="size-3.5" /> Sign out
+                </button>
+              </div>
+            ) : (
+              <Link to="/login" className="h-9 px-3 inline-flex items-center gap-1.5 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90">
+                <LogIn className="size-3.5" /> Sign in
+              </Link>
+            )}
           </div>
         </header>
         <main className="flex-1 p-4 md:p-8 max-w-[1400px] w-full mx-auto">
