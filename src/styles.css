@@ -183,11 +183,13 @@
 }
 
 /* Subtle row hover for tables */
-@utility row-hover { transition: background-color 120ms ease; }
-@utility row-hover:hover { background: color-mix(in oklab, var(--muted) 55%, transparent); }
+@utility row-hover {
+  transition: background-color 120ms ease;
+  &:hover { background: color-mix(in oklab, var(--muted) 55%, transparent); }
+}
 
 /* Fast secure micro-interaction for primary cards/links */
 @utility interactive {
   transition: border-color 120ms ease, background-color 120ms ease, box-shadow 160ms ease, transform 120ms ease;
+  &:hover { border-color: color-mix(in oklab, var(--primary) 45%, var(--border)); box-shadow: var(--shadow-pop); }
 }
-@utility interactive:hover { border-color: color-mix(in oklab, var(--primary) 45%, var(--border)); box-shadow: var(--shadow-pop); }
