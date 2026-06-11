@@ -286,6 +286,17 @@ export function createCorporateCase(data: CorporateData): KycCase {
   return c;
 }
 
-export const COUNTRIES = ["United States", "United Kingdom", "Germany", "France", "Switzerland", "Singapore", "Japan", "Canada", "UAE", "Hong Kong", "Brazil", "India", "Nigeria", "Pakistan", "Iran", "Syria", "North Korea", "Venezuela", "Myanmar", "Yemen", "Cuba", "South Sudan"];
+export const COUNTRIES = [
+  "Argentina","Australia","Austria","Bahrain","Bangladesh","Belgium","Bermuda","Brazil","British Virgin Islands","Canada",
+  "Cayman Islands","Chile","China","Colombia","Cuba","Cyprus","Czech Republic","Denmark","Egypt","Estonia",
+  "Finland","France","Germany","Ghana","Gibraltar","Greece","Guernsey","Hong Kong","Hungary","Iceland",
+  "India","Indonesia","Iran","Iraq","Ireland","Isle of Man","Israel","Italy","Japan","Jersey",
+  "Jordan","Kazakhstan","Kenya","Kuwait","Latvia","Lebanon","Liechtenstein","Lithuania","Luxembourg","Malaysia",
+  "Malta","Mauritius","Mexico","Monaco","Morocco","Myanmar","Netherlands","New Zealand","Nigeria","North Korea",
+  "Norway","Oman","Pakistan","Panama","Peru","Philippines","Poland","Portugal","Qatar","Romania",
+  "Russia","Saudi Arabia","Seychelles","Singapore","Slovakia","Slovenia","South Africa","South Korea","South Sudan","Spain",
+  "Sri Lanka","Sweden","Switzerland","Syria","Taiwan","Thailand","Turkey","UAE","Ukraine","United Kingdom",
+  "United States","Uruguay","Venezuela","Vietnam","Yemen"
+];
 export const INDUSTRIES = ["Banking", "Technology", "Retail", "Manufacturing", "Healthcare", "Energy", "Crypto", "Gambling", "Arms", "Precious Metals", "Money Services", "Real Estate", "Consulting"];
 export const OCCUPATIONS = ["Software Engineer", "Doctor", "Lawyer", "Teacher", "Retail Worker", "Executive", "Crypto Trader", "Casino Owner", "Politician", "Arms Dealer", "Cash Intensive Business", "Retired", "Student"];
