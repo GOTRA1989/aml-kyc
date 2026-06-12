@@ -191,6 +191,21 @@ function Page() {
               </div>
               <div className="grid gap-2">
                 <Button onClick={() => decide("approved")} className="bg-success text-success-foreground hover:bg-success/90"><CheckCircle2 className="size-4" /> Approve Customer</Button>
+                <Button
+                  onClick={() => {
+                    const country = c.type === "corporate"
+                      ? (c.ocr["Country of Incorporation"] || c.ocr["Country"] || "")
+                      : (c.ocr["Nationality"] || c.ocr["Country of Residence"] || c.ocr["Country"] || "");
+                    const url = `https://citimock-portal.lovable.app/?customer=${encodeURIComponent(c.subjectName)}&country=${encodeURIComponent(country)}`;
+                    window.open(url, "_blank", "noopener,noreferrer");
+                    addAudit(c.id, { action: "Deep-link to CitiMock Portal", detail: `Sent ${c.subjectName} / ${country}` });
+                    setC(getCase(c.id));
+                    toast.success("Opening CitiMock Portal…");
+                  }}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  <ArrowUpRight className="size-4" /> Create Bank Account in CitiMock
+                </Button>
                 <Button onClick={() => decide("rejected")} variant="destructive"><XCircle className="size-4" /> Reject / Block</Button>
                 <Button onClick={() => decide("escalated")} className="bg-warning text-warning-foreground hover:bg-warning/90"><ArrowUpRight className="size-4" /> Escalate to MLRO</Button>
               </div>
