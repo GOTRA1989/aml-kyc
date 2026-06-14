@@ -303,3 +303,20 @@ function IRACField({ label, value, onChange, placeholder }: { label: string; val
     </div>
   );
 }
+
+function ScreeningRow({ label, status, detail, extra }: { label: string; status: "CLEAR" | "MATCHED" | "ALERTS FOUND"; detail: string; extra?: string }) {
+  const ok = status === "CLEAR";
+  return (
+    <div className={`rounded-md border p-3 flex items-start gap-3 ${ok ? "border-success/30 bg-success/5" : "border-destructive/40 bg-destructive/5"}`}>
+      <div className={`size-2 mt-2 rounded-full ${ok ? "bg-success" : "bg-destructive"}`} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-sm font-semibold">{label}</div>
+          <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded ${ok ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>{status}</span>
+        </div>
+        <div className="text-xs text-muted-foreground mt-1">{detail}</div>
+        {extra && <div className="text-[11px] text-muted-foreground italic mt-0.5">{extra}</div>}
+      </div>
+    </div>
+  );
+}
