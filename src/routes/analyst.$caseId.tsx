@@ -174,11 +174,11 @@ function Page() {
               </div>
               <div>
                 <div className="text-xs text-muted-foreground">Score</div>
-                <div className="text-3xl font-bold tabular-nums">{c.risk.total}<span className="text-base text-muted-foreground"> / 160</span></div>
+                <div className="text-3xl font-bold tabular-nums">{c.risk.total}<span className="text-base text-muted-foreground"> / 100</span></div>
               </div>
               <div className="flex-1 min-w-[200px]">
                 <div className="h-2.5 rounded-full bg-muted overflow-hidden">
-                  <div className={`h-full ${c.risk.level === "HIGH" ? "bg-destructive" : c.risk.level === "MEDIUM" ? "bg-warning" : "bg-success"}`} style={{ width: `${Math.min(100, (c.risk.total / 160) * 100)}%` }} />
+                  <div className={`h-full ${c.risk.level === "HIGH" ? "bg-destructive" : c.risk.level === "MEDIUM" ? "bg-warning" : "bg-success"}`} style={{ width: `${Math.min(100, c.risk.total)}%` }} />
                 </div>
                 <div className="flex justify-between text-[10px] uppercase tracking-wider text-muted-foreground mt-1">
                   <span>Low</span><span>Medium</span><span>High</span>
