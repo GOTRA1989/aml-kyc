@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { exportAuditPdf } from "@/lib/pdf-export";
-import { ArrowLeft, FileDown, ShieldAlert, Newspaper, Gauge, AlertTriangle, CheckCircle2, XCircle, ArrowUpRight, ScanLine, Clock, Users2 } from "lucide-react";
+import { ArrowLeft, FileDown, ShieldAlert, Newspaper, Gauge, AlertTriangle, CheckCircle2, XCircle, ArrowUpRight, ScanLine, Clock, Users2, Siren } from "lucide-react";
 import { toast } from "sonner";
 import { StatusBadge, statusFromCase } from "@/components/StatusBadge";
 import { UboTable } from "@/components/UboTable";
