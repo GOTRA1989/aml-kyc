@@ -4,15 +4,19 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { COUNTRIES, OCCUPATIONS, createIndividualCase, type IndividualData } from "@/lib/kyc-store";
-import { Upload, ScanFace, CheckCircle2, FileText, IdCard } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  COUNTRIES, OCCUPATIONS, INDUSTRIES, RELIGIONS, PHONE_CODES, INCOME_BUCKETS,
+  createIndividualCase, type IndividualData,
+} from "@/lib/kyc-store";
+import { Upload, ScanFace, CheckCircle2, FileText, IdCard, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/onboarding/individual")({
   head: () => ({
     meta: [
       { title: "Individual Onboarding — Veridian KYC" },
-      { name: "description", content: "Retail KYC: identity capture, liveness selfie and proof of address." },
+      { name: "description", content: "Retail KYC: demographics, identity, liveness, tax & financial profile." },
     ],
   }),
   component: Page,
@@ -22,21 +26,33 @@ function Page() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [d, setD] = useState<IndividualData>({
-    fullName: "", dob: "", nationality: "United States",
+    title: "Mr.", fullName: "", dob: "", placeOfBirth: "",
+    gender: "Male", religion: "Prefer not to say",
+    nationality: "United Kingdom", dualCitizenship: "None",
+    phoneCountryCode: "+44", phoneNumber: "", email: "",
+    residentialAddress: "", permanentAddress: "", sameAsResidential: true,
     idType: "Passport", idNumber: "", idDocName: undefined,
     selfieCaptured: false, livenessScore: 0,
-    proofOfAddressName: undefined, addressCountry: "United States",
-    occupation: "Software Engineer", channel: "Online",
+    proofOfAddressName: undefined, addressCountry: "United Kingdom",
+    tin: "", taxResidencyCountry: "United Kingdom",
+    employmentStatus: "Employed", occupation: "Software Engineer",
+    industry: "Technology", employerName: "",
+    sourceOfWealth: "Salary & Savings", sourceOfFunds: "Monthly Salary",
+    annualIncome: "$50k-$100k", monthlyVolume: "$10k-$50k",
+    channel: "Online",
   });
 
   const set = <K extends keyof IndividualData>(k: K, v: IndividualData[K]) => setD(prev => ({ ...prev, [k]: v }));
 
-  const steps = ["Personal", "Identity Document", "Liveness", "Address & Profile", "Review"];
+  const steps = ["Demographics", "Contact", "Identification", "Liveness", "Tax & Financial", "Submit"];
 
   const submit = () => {
-    if (!d.fullName || !d.idNumber || !d.selfieCaptured) { toast.error("Complete all required fields"); return; }
+    if (!d.fullName || !d.dob || !d.idNumber || !d.selfieCaptured || !d.phoneNumber || !d.email || !d.residentialAddress) {
+      toast.error("Complete all required fields before running screening");
+      return;
+    }
     const c = createIndividualCase(d);
-    toast.success(`Case ${c.id} submitted for compliance review`);
+    toast.success(`Case ${c.id} submitted — running compliance screening…`);
     navigate({ to: "/analyst/$caseId", params: { caseId: c.id } });
   };
 
@@ -45,6 +61,7 @@ function Page() {
       <div className="mb-6">
         <div className="text-xs uppercase tracking-wider text-muted-foreground">Retail Onboarding</div>
         <h1 className="text-2xl font-bold mt-1">Individual KYC</h1>
+        <p className="text-sm text-muted-foreground mt-1">Citi/HSBC-grade data capture. All inputs are processed in the secure compliance layer.</p>
       </div>
 
       <Stepper steps={steps} current={step} />
@@ -52,25 +69,84 @@ function Page() {
       <div className="card-elevated p-6 mt-6">
         {step === 0 && (
           <Grid>
-            <Field label="Full Legal Name *"><Input value={d.fullName} onChange={e => set("fullName", e.target.value)} placeholder="As shown on ID" /></Field>
-            <Field label="Date of Birth"><Input type="date" value={d.dob} onChange={e => set("dob", e.target.value)} /></Field>
+            <Field label="Title">
+              <Select value={d.title} onChange={v => set("title", v as IndividualData["title"])} options={["Mr.", "Mrs.", "Ms.", "Dr."]} />
+            </Field>
+            <Field label="Full Legal Name *">
+              <Input value={d.fullName} onChange={e => set("fullName", e.target.value)} placeholder="As shown on ID" />
+            </Field>
+            <Field label="Date of Birth *"><Input type="date" value={d.dob} onChange={e => set("dob", e.target.value)} /></Field>
+            <Field label="Place of Birth"><Input value={d.placeOfBirth} onChange={e => set("placeOfBirth", e.target.value)} placeholder="City, Country" /></Field>
+            <Field label="Gender">
+              <Select value={d.gender} onChange={v => set("gender", v as IndividualData["gender"])} options={["Male", "Female", "Other", "Prefer not to say"]} />
+            </Field>
+            <Field label="Religion / Belief System">
+              <Select value={d.religion} onChange={v => set("religion", v)} options={RELIGIONS} />
+            </Field>
             <Field label="Nationality">
               <Select value={d.nationality} onChange={v => set("nationality", v)} options={COUNTRIES} />
             </Field>
+            <Field label="Dual Citizenship">
+              <Select value={d.dualCitizenship} onChange={v => set("dualCitizenship", v)} options={["None", ...COUNTRIES]} />
+            </Field>
           </Grid>
         )}
+
         {step === 1 && (
           <Grid>
-            <Field label="Document Type">
-              <Select value={d.idType} onChange={v => set("idType", v as IndividualData["idType"])} options={["Passport", "National ID", "Driver License"]} />
+            <Field label="Mobile Phone *">
+              <div className="flex gap-2">
+                <div className="w-28">
+                  <Select value={d.phoneCountryCode} onChange={v => set("phoneCountryCode", v)} options={PHONE_CODES} />
+                </div>
+                <Input value={d.phoneNumber} onChange={e => set("phoneNumber", e.target.value)} placeholder="812 3456 7890" />
+              </div>
             </Field>
-            <Field label="Document Number *"><Input value={d.idNumber} onChange={e => set("idNumber", e.target.value.toUpperCase())} placeholder="e.g. P12345678" /></Field>
-            <Field label="Document Upload" full>
-              <FileDrop label="Upload front of document (JPG/PDF)" icon={IdCard} value={d.idDocName} onFile={f => set("idDocName", f.name)} />
+            <Field label="Verified Email *">
+              <Input type="email" value={d.email} onChange={e => set("email", e.target.value)} placeholder="name@example.com" />
+            </Field>
+            <Field label="Current Residential Address *" full>
+              <Input value={d.residentialAddress} onChange={e => set("residentialAddress", e.target.value)} placeholder="Street, City, Postal Code, Country" />
+            </Field>
+            <Field label="Country of Residence">
+              <Select value={d.addressCountry} onChange={v => set("addressCountry", v)} options={COUNTRIES} />
+            </Field>
+            <Field label="Permanent Address" full>
+              <div className="flex items-center gap-2 mb-2">
+                <Checkbox id="sameAddr" checked={d.sameAsResidential} onCheckedChange={v => set("sameAsResidential", Boolean(v))} />
+                <label htmlFor="sameAddr" className="text-sm text-muted-foreground select-none cursor-pointer">Same as residential address</label>
+              </div>
+              {!d.sameAsResidential && (
+                <Input value={d.permanentAddress} onChange={e => set("permanentAddress", e.target.value)} placeholder="Permanent address if different" />
+              )}
             </Field>
           </Grid>
         )}
+
         {step === 2 && (
+          <Grid>
+            <Field label="Government ID Type">
+              <Select value={d.idType} onChange={v => set("idType", v as IndividualData["idType"])} options={["Passport", "National ID / KTP", "Driving License"]} />
+            </Field>
+            <Field label="ID Serial Number *">
+              <Input value={d.idNumber} onChange={e => set("idNumber", e.target.value.toUpperCase())} placeholder="e.g. P12345678" />
+            </Field>
+            <Field label="Tax ID (TIN / NPWP)">
+              <Input value={d.tin} onChange={e => set("tin", e.target.value)} placeholder="Tax identification number" />
+            </Field>
+            <Field label="Tax Residency Country">
+              <Select value={d.taxResidencyCountry} onChange={v => set("taxResidencyCountry", v)} options={COUNTRIES} />
+            </Field>
+            <Field label="ID Document Upload" full>
+              <FileDrop label="Upload front of document (JPG/PDF)" icon={IdCard} value={d.idDocName} onFile={f => set("idDocName", f.name)} />
+            </Field>
+            <Field label="Proof of Address" full>
+              <FileDrop label="Utility bill or bank statement (last 3 months)" icon={FileText} value={d.proofOfAddressName} onFile={f => set("proofOfAddressName", f.name)} />
+            </Field>
+          </Grid>
+        )}
+
+        {step === 3 && (
           <div className="grid place-items-center py-6">
             <div className="text-center max-w-md">
               <div className="size-32 mx-auto rounded-full border-4 border-dashed border-primary/40 grid place-items-center bg-primary/5 mb-4">
@@ -90,35 +166,53 @@ function Page() {
             </div>
           </div>
         )}
-        {step === 3 && (
+
+        {step === 4 && (
           <Grid>
-            <Field label="Country of Residence">
-              <Select value={d.addressCountry} onChange={v => set("addressCountry", v)} options={COUNTRIES} />
+            <Field label="Employment Status">
+              <Select value={d.employmentStatus} onChange={v => set("employmentStatus", v as IndividualData["employmentStatus"])}
+                options={["Employed", "Self-Employed", "Business Owner", "Retired", "Student", "Unemployed"]} />
             </Field>
             <Field label="Occupation">
               <Select value={d.occupation} onChange={v => set("occupation", v)} options={OCCUPATIONS} />
             </Field>
+            <Field label="Industry">
+              <Select value={d.industry} onChange={v => set("industry", v)} options={INDUSTRIES} />
+            </Field>
+            <Field label="Employer Name">
+              <Input value={d.employerName} onChange={e => set("employerName", e.target.value)} placeholder="Company name (or 'Self')" />
+            </Field>
+            <Field label="Source of Wealth" full>
+              <Input value={d.sourceOfWealth} onChange={e => set("sourceOfWealth", e.target.value)} placeholder="e.g. Inheritance 2018, property sale, business profits" />
+            </Field>
+            <Field label="Source of Funds" full>
+              <Input value={d.sourceOfFunds} onChange={e => set("sourceOfFunds", e.target.value)} placeholder="e.g. Monthly salary from Acme Corp" />
+            </Field>
+            <Field label="Estimated Annual Income">
+              <Select value={d.annualIncome} onChange={v => set("annualIncome", v as IndividualData["annualIncome"])} options={INCOME_BUCKETS} />
+            </Field>
+            <Field label="Expected Monthly Transaction Volume">
+              <Select value={d.monthlyVolume} onChange={v => set("monthlyVolume", v as IndividualData["monthlyVolume"])} options={INCOME_BUCKETS} />
+            </Field>
             <Field label="Onboarding Channel">
               <Select value={d.channel} onChange={v => set("channel", v as IndividualData["channel"])} options={["Branch", "Online", "Mobile App", "Agent"]} />
             </Field>
-            <Field label="Proof of Address" full>
-              <FileDrop label="Upload utility bill or bank statement (last 3 months)" icon={FileText} value={d.proofOfAddressName} onFile={f => set("proofOfAddressName", f.name)} />
-            </Field>
           </Grid>
         )}
-        {step === 4 && (
-          <div className="space-y-3 text-sm">
-            <h3 className="font-semibold mb-2">Confirm submission</h3>
-            <Row k="Name" v={d.fullName || "—"} />
-            <Row k="DOB / Nationality" v={`${d.dob || "—"} • ${d.nationality}`} />
-            <Row k="ID" v={`${d.idType} #${d.idNumber || "—"}${d.idDocName ? " (" + d.idDocName + ")" : ""}`} />
-            <Row k="Liveness" v={d.selfieCaptured ? `Verified ${d.livenessScore}%` : "Not captured"} />
-            <Row k="Address Country" v={d.addressCountry} />
-            <Row k="Occupation" v={d.occupation} />
-            <Row k="Channel" v={d.channel} />
-            <Row k="Proof of Address" v={d.proofOfAddressName || "—"} />
-            <p className="text-xs text-muted-foreground pt-3 border-t border-border">
-              Submitting will trigger sanctions / PEP / adverse media screening and risk rating.
+
+        {step === 5 && (
+          <div className="text-center py-8 max-w-lg mx-auto">
+            <div className="size-16 mx-auto rounded-full bg-primary/10 grid place-items-center mb-4">
+              <ShieldCheck className="size-8 text-primary" />
+            </div>
+            <h3 className="text-lg font-semibold">Ready to run compliance screening</h3>
+            <p className="text-sm text-muted-foreground mt-2">
+              Customer data is held in the secure compliance state. The full file is only rendered inside the
+              audit-trail case view after screening completes.
+            </p>
+            <p className="text-xs text-muted-foreground mt-3 border-t border-border pt-3">
+              Submitting triggers sanctions, PEP and adverse-media screening against OFAC, UN and EU lists
+              and computes a Customer Risk Rating.
             </p>
           </div>
         )}
@@ -128,7 +222,7 @@ function Page() {
           {step < steps.length - 1 ? (
             <Button onClick={() => setStep(s => s + 1)}>Continue</Button>
           ) : (
-            <Button onClick={submit}>Submit for Compliance Review</Button>
+            <Button onClick={submit}><ShieldCheck className="size-4" /> Run Screening</Button>
           )}
         </div>
       </div>
@@ -154,7 +248,6 @@ export function Stepper({ steps, current }: { steps: string[]; current: number }
     </ol>
   );
 }
-
 export function Grid({ children }: { children: React.ReactNode }) {
   return <div className="grid md:grid-cols-2 gap-4">{children}</div>;
 }
@@ -185,7 +278,4 @@ export function FileDrop({ label, icon: Icon, value, onFile }: { label: string; 
       <input type="file" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f); }} />
     </label>
   );
-}
-function Row({ k, v }: { k: string; v: string }) {
-  return <div className="flex justify-between gap-4 py-1.5 border-b border-border/60"><span className="text-muted-foreground">{k}</span><span className="font-medium text-right truncate">{v}</span></div>;
 }

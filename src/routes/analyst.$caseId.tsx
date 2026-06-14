@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { exportAuditPdf } from "@/lib/pdf-export";
-import { ArrowLeft, FileDown, ShieldAlert, Newspaper, Gauge, AlertTriangle, CheckCircle2, XCircle, ArrowUpRight, ScanLine, Clock, Users2 } from "lucide-react";
+import { ArrowLeft, FileDown, ShieldAlert, Newspaper, Gauge, AlertTriangle, CheckCircle2, XCircle, ArrowUpRight, ScanLine, Clock, Users2, Siren } from "lucide-react";
 import { toast } from "sonner";
 import { StatusBadge, statusFromCase } from "@/components/StatusBadge";
 import { UboTable } from "@/components/UboTable";
@@ -67,9 +67,46 @@ function Page() {
         </div>
       </div>
 
+      {c.screening?.blocked && (
+        <div className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 p-4 flex items-start gap-3">
+          <Siren className="size-5 text-destructive shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <div className="font-semibold text-destructive">Automated Onboarding Blocked — Escalated to MLRO for EDD</div>
+            <div className="text-sm text-destructive/90 mt-0.5">
+              One or more compliance triggers were activated by the screening engine. Manual review and Enhanced
+              Due Diligence sign-off are mandatory before any account can be opened.
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 space-y-4">
-          <Card title="OCR / Extracted Data" icon={ScanLine}>
+          {c.screening && (
+            <Card title="Screening Results" icon={ShieldAlert}>
+              <div className="space-y-2">
+                <ScreeningRow
+                  label="PEP Screening"
+                  status={c.screening.pepStatus}
+                  detail={c.screening.pepMatches.length ? c.screening.pepMatches.join(" • ") : "No politically exposed person match across global PEP database."}
+                />
+                <ScreeningRow
+                  label="Sanctions List"
+                  status={c.screening.sanctionsStatus}
+                  detail={c.screening.sanctionsMatches.length ? c.screening.sanctionsMatches.join(" • ") : "Clear against OFAC, UN and EU consolidated sanctions lists."}
+                />
+                <ScreeningRow
+                  label="Adverse Media"
+                  status={c.screening.adverseStatus}
+                  detail={c.screening.adverseAlerts.length ? c.screening.adverseAlerts[0] : "No adverse media identified across 240+ aggregated sources."}
+                  extra={c.screening.adverseAlerts.length > 1 ? `+${c.screening.adverseAlerts.length - 1} more alert(s)` : undefined}
+                />
+              </div>
+            </Card>
+          )}
+
+          <Card title="Compliance Case File" icon={ScanLine}>
+            <p className="text-xs text-muted-foreground mb-3">Rendered only inside the secured analyst view. Not exposed on intake screens.</p>
             <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
               {Object.entries(c.ocr).map(([k, v]) => (
                 <div key={k} className="flex justify-between gap-3 py-1 border-b border-border/60">
@@ -137,11 +174,11 @@ function Page() {
               </div>
               <div>
                 <div className="text-xs text-muted-foreground">Score</div>
-                <div className="text-3xl font-bold tabular-nums">{c.risk.total}<span className="text-base text-muted-foreground"> / 160</span></div>
+                <div className="text-3xl font-bold tabular-nums">{c.risk.total}<span className="text-base text-muted-foreground"> / 100</span></div>
               </div>
               <div className="flex-1 min-w-[200px]">
                 <div className="h-2.5 rounded-full bg-muted overflow-hidden">
-                  <div className={`h-full ${c.risk.level === "HIGH" ? "bg-destructive" : c.risk.level === "MEDIUM" ? "bg-warning" : "bg-success"}`} style={{ width: `${Math.min(100, (c.risk.total / 160) * 100)}%` }} />
+                  <div className={`h-full ${c.risk.level === "HIGH" ? "bg-destructive" : c.risk.level === "MEDIUM" ? "bg-warning" : "bg-success"}`} style={{ width: `${Math.min(100, c.risk.total)}%` }} />
                 </div>
                 <div className="flex justify-between text-[10px] uppercase tracking-wider text-muted-foreground mt-1">
                   <span>Low</span><span>Medium</span><span>High</span>
@@ -263,6 +300,23 @@ function IRACField({ label, value, onChange, placeholder }: { label: string; val
     <div>
       <div className="text-[11px] font-semibold text-primary mb-0.5">{label}</div>
       <Textarea rows={2} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className="text-sm" />
+    </div>
+  );
+}
+
+function ScreeningRow({ label, status, detail, extra }: { label: string; status: "CLEAR" | "MATCHED" | "ALERTS FOUND"; detail: string; extra?: string }) {
+  const ok = status === "CLEAR";
+  return (
+    <div className={`rounded-md border p-3 flex items-start gap-3 ${ok ? "border-success/30 bg-success/5" : "border-destructive/40 bg-destructive/5"}`}>
+      <div className={`size-2 mt-2 rounded-full ${ok ? "bg-success" : "bg-destructive"}`} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-sm font-semibold">{label}</div>
+          <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded ${ok ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>{status}</span>
+        </div>
+        <div className="text-xs text-muted-foreground mt-1">{detail}</div>
+        {extra && <div className="text-[11px] text-muted-foreground italic mt-0.5">{extra}</div>}
+      </div>
     </div>
   );
 }
