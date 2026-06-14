@@ -67,9 +67,46 @@ function Page() {
         </div>
       </div>
 
+      {c.screening?.blocked && (
+        <div className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 p-4 flex items-start gap-3">
+          <Siren className="size-5 text-destructive shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <div className="font-semibold text-destructive">Automated Onboarding Blocked — Escalated to MLRO for EDD</div>
+            <div className="text-sm text-destructive/90 mt-0.5">
+              One or more compliance triggers were activated by the screening engine. Manual review and Enhanced
+              Due Diligence sign-off are mandatory before any account can be opened.
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 space-y-4">
-          <Card title="OCR / Extracted Data" icon={ScanLine}>
+          {c.screening && (
+            <Card title="Screening Results" icon={ShieldAlert}>
+              <div className="space-y-2">
+                <ScreeningRow
+                  label="PEP Screening"
+                  status={c.screening.pepStatus}
+                  detail={c.screening.pepMatches.length ? c.screening.pepMatches.join(" • ") : "No politically exposed person match across global PEP database."}
+                />
+                <ScreeningRow
+                  label="Sanctions List"
+                  status={c.screening.sanctionsStatus}
+                  detail={c.screening.sanctionsMatches.length ? c.screening.sanctionsMatches.join(" • ") : "Clear against OFAC, UN and EU consolidated sanctions lists."}
+                />
+                <ScreeningRow
+                  label="Adverse Media"
+                  status={c.screening.adverseStatus}
+                  detail={c.screening.adverseAlerts.length ? c.screening.adverseAlerts[0] : "No adverse media identified across 240+ aggregated sources."}
+                  extra={c.screening.adverseAlerts.length > 1 ? `+${c.screening.adverseAlerts.length - 1} more alert(s)` : undefined}
+                />
+              </div>
+            </Card>
+          )}
+
+          <Card title="Compliance Case File" icon={ScanLine}>
+            <p className="text-xs text-muted-foreground mb-3">Rendered only inside the secured analyst view. Not exposed on intake screens.</p>
             <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
               {Object.entries(c.ocr).map(([k, v]) => (
                 <div key={k} className="flex justify-between gap-3 py-1 border-b border-border/60">
